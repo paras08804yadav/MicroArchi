@@ -1,0 +1,44 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./gateway:/usr/src/app
+    command: ["node", "server.js"]
+
+  auth:
+    build: ./services/auth
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./services/auth:/usr/src/app
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/auth
+    command: ["node", "server.js"]
+    depends_on:
+      - mongo
+
+  user:
+    build: ./services/users
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./services/users:/usr/src/app
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/users
+    command: ["node", "server.js"]
+    depends_on:
+      - mongo
+
+
+  mongo:
+    image: mongo:6
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
